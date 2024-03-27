@@ -3,6 +3,7 @@ package org.example;
 import java.io.IOException;
 
 public class Main {
+
     public static void main(String[] args) {
         if (args.length < 1) {
             System.err.println("java Main <inputFile> [--out outputFile]");
@@ -11,14 +12,20 @@ public class Main {
 
         String inputFile = args[0];
         String outputFile = null;
-
         if (args.length > 2 && "--out".equals(args[1])) {
             outputFile = args[2];
         }
 
-        MarkdownParser markdownParser = new MarkdownParser(inputFile, outputFile);
+        MarkdownParser markdownParser = new MarkdownParser();
         try {
-            markdownParser.parse();
+            FileManager fIleHandler = new FileManager(outputFile, inputFile);
+            String file = fIleHandler.readFile();
+            String markdown = markdownParser.parse(file);
+            if (outputFile != null) {
+                fIleHandler.writeFile(markdown);
+            } else {
+                System.out.println(markdown);
+            }
         } catch (IOException e) {
             System.err.println("Error reading or writing file: " + e.getMessage());
             System.exit(1);
