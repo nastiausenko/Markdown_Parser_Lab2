@@ -74,7 +74,7 @@ public class MarkdownParser {
         StringBuilder result = new StringBuilder();
         for (String paragraph : paragraphs) {
             if (!paragraph.isEmpty()) {
-                result.append("<p>").append(paragraph.trim()).append("</p>\n");
+                result.append("<p>").append(paragraph.trim()).append("</p>").append(System.lineSeparator());
             }
         }
         return result.toString().trim();
