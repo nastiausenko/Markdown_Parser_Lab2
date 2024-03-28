@@ -12,30 +12,46 @@ public class MarkdownParser {
     static final String MONOSPACED_REGEX = "(?<![\\w`*\\u0400-\\u04FF])`(\\S(?:.*?\\S)?)`(?![\\w`*\\u0400-\\u04FF])";
     private static final String PREFORMATTED_REGEX = "```([\\s\\S]*?)```";
     private final List<String> preformattedText = new ArrayList<>();
+    private String content;
 
-    public String parse(String file) {
-        file = removePreformattedText(file);
-        file = processInlineElements(file);
-        file = setPreformattedText(file);
-        return file;
+    public MarkdownParser(String content) {
+        this.content = content;
     }
 
-    private String processInlineElements(String html) {
-        MarkupChecker markupChecker = new MarkupChecker();
-        List<String> boldBlocks = getMatchPatternList(BOLD_REGEX, html);
-        List<String> monospacedBlocks = getMatchPatternList(MONOSPACED_REGEX, html);
-        List<String> italicBlocks = getMatchPatternList(ITALIC_REGEX, html);
+    public String parse(Format format) {
+        content = removePreformattedText();
+        content = processInlineElements(format);
+        content = setPreformattedText(format);
+        return content;
+    }
 
-        markupChecker.checkUnpairedMarkup(html);
+    private String processInlineElements(Format format) {
+        MarkupChecker markupChecker = new MarkupChecker();
+        List<String> boldBlocks = getMatchPatternList(BOLD_REGEX, content);
+        List<String> monospacedBlocks = getMatchPatternList(MONOSPACED_REGEX, content);
+        List<String> italicBlocks = getMatchPatternList(ITALIC_REGEX, content);
+
+        markupChecker.checkUnpairedMarkup(content);
         markupChecker.checkNested(BOLD_REGEX, ITALIC_REGEX, monospacedBlocks);
         markupChecker.checkNested(BOLD_REGEX, MONOSPACED_REGEX, italicBlocks);
         markupChecker.checkNested(ITALIC_REGEX, MONOSPACED_REGEX, boldBlocks);
 
-        html = html.replaceAll(BOLD_REGEX, "<b>$1</b>");
-        html = html.replaceAll(ITALIC_REGEX, "<i>$1</i>");
-        html = html.replaceAll(MONOSPACED_REGEX, "<tt>$1</tt>");
-        html = setParagraphs(html);
-        return html;
+        content = setFormat(format);
+        return content;
+    }
+
+    private String setFormat(Format format) {
+        if (format.equals(Format.ANSI)) {
+            content = content.replaceAll(BOLD_REGEX, "\u001B[1m$1\u001B[22m");
+            content = content.replaceAll(ITALIC_REGEX, "\u001B[3m$1\u001B[23m");
+            content = content.replaceAll(MONOSPACED_REGEX, "\u001B[7m$1\u001B[27m");
+        } else {
+            content = content.replaceAll(BOLD_REGEX, "<b>$1</b>");
+            content = content.replaceAll(ITALIC_REGEX, "<i>$1</i>");
+            content = content.replaceAll(MONOSPACED_REGEX, "<tt>$1</tt>");
+            content = setParagraphs(content);
+        }
+        return content;
     }
 
     private List<String> getMatchPatternList(String regex, String html) {
@@ -48,9 +64,9 @@ public class MarkdownParser {
         return regexList;
     }
 
-    private String removePreformattedText(String text) {
+    private String removePreformattedText() {
         Pattern preformattedPattern = Pattern.compile(PREFORMATTED_REGEX, Pattern.DOTALL);
-        Matcher matcher = preformattedPattern.matcher(text);
+        Matcher matcher = preformattedPattern.matcher(content);
         while (matcher.find()) {
             String preformattedBlock = matcher.group();
             if (!preformattedBlock.matches("(?s)```\\s*\n.*?\n```")) {
@@ -58,15 +74,20 @@ public class MarkdownParser {
             }
             preformattedText.add(matcher.group());
         }
-        return text.replaceAll(PREFORMATTED_REGEX, "PRE");
+        return content.replaceAll(PREFORMATTED_REGEX, "PRE");
     }
 
-    private String setPreformattedText(String text) {
+    private String setPreformattedText(Format format) {
         for (String cur : preformattedText) {
-            String html = "<pre>" + cur.replaceAll("```", "") + "</pre>";
-            text = text.replaceFirst("PRE", html);
+            String formattedText;
+            if (format.equals(Format.ANSI)) {
+                formattedText = cur.replaceAll("```", "");
+            } else {
+                formattedText = "<pre>" + cur.replaceAll("```", "") + "</pre>";
+            }
+            content = content.replaceFirst("PRE", formattedText);
         }
-        return text;
+        return content;
     }
 
     private String setParagraphs(String text) {
