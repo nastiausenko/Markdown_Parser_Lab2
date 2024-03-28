@@ -50,4 +50,46 @@ class MarkdownParserTest {
         markdownParser = new MarkdownParser(input);
         Assertions.assertEquals(expected, markdownParser.parse(Format.HTML));
     }
+
+
+    @Test
+    void markdownANSIBoldTest() {
+        markdownParser = new MarkdownParser("**text**");
+        String expected = """
+                \u001B[1mtext\u001B[22m""";
+        Assertions.assertEquals(expected, markdownParser.parse(Format.ANSI));
+    }
+
+    @Test
+    void markdownANSIMonospacedTest() {
+        markdownParser = new MarkdownParser("`text`");
+        String expected = """
+                \u001B[7mtext\u001B[27m""";
+        Assertions.assertEquals(expected, markdownParser.parse(Format.ANSI));
+    }
+
+    @Test
+    void markdownANSIItalicTest() {
+        markdownParser = new MarkdownParser("_text_");
+        String expected = """
+                \u001B[3mtext\u001B[23m""";
+        Assertions.assertEquals(expected, markdownParser.parse(Format.ANSI));
+    }
+
+    @Test
+    void paragraphMarkdownANSITest() {
+        String input = """
+                text
+                
+                more text
+                and more text""";
+
+        String expected = """
+                text
+                
+                more text
+                and more text""";
+        markdownParser = new MarkdownParser(input);
+        Assertions.assertEquals(expected, markdownParser.parse(Format.ANSI));
+    }
 }
