@@ -74,6 +74,28 @@ class MarkdownParserTest {
     }
 
     @Test
+    void invalidPreformattedTest() {
+        String input = """
+                ```text
+                ```""";
+        markdownParser = new MarkdownParser(input);
+        MarkdownException exception = Assertions.assertThrows(MarkdownException.class,
+                ()-> markdownParser.parse(Format.HTML));
+        Assertions.assertTrue(exception.getMessage().contains("ERROR: invalid preformatted text"));
+    }
+
+    @Test
+    void invalidPreformatted2Test() {
+        String input = """
+                ```
+                text```""";
+        markdownParser = new MarkdownParser(input);
+        MarkdownException exception = Assertions.assertThrows(MarkdownException.class,
+                ()-> markdownParser.parse(Format.HTML));
+        Assertions.assertTrue(exception.getMessage().contains("ERROR: invalid preformatted text"));
+    }
+
+    @Test
     void markdownANSIBoldTest() {
         markdownParser = new MarkdownParser("**text**");
         String expected = """
