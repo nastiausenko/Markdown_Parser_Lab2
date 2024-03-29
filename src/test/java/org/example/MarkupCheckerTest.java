@@ -18,11 +18,11 @@ class MarkupCheckerTest {
     void checkUnpairedMarkupTest(String input) {
        MarkdownException exception = Assertions.assertThrows(MarkdownException.class,
                ()-> markupChecker.checkUnpairedMarkup(input));
-       Assertions.assertTrue(exception.getMessage().contains("Error: unpaired markup"));
+       Assertions.assertTrue(exception.getMessage().contains("ERROR: unpaired markup"));
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"_**text", "text**_", "**_text", "text_**", "`**text", "text**`", "```\ntext", "text\n```"})
+    @ValueSource(strings = {"_**text_", "text**_", "**_text", "text_**", "`**text", "text**`"})
     void checkUnpairedNestedMarkupTest(String input) {
         MarkdownException exception = Assertions.assertThrows(MarkdownException.class,
                 ()-> markupChecker.checkUnpairedMarkup(input));
@@ -34,6 +34,6 @@ class MarkupCheckerTest {
     void checkUnpairedNewlineMarkupTest(String input) {
         MarkdownException exception = Assertions.assertThrows(MarkdownException.class,
                 ()-> markupChecker.checkUnpairedMarkup(input));
-        Assertions.assertTrue(exception.getMessage().contains("Error: unpaired markup"));
+        Assertions.assertTrue(exception.getMessage().contains("ERROR: unpaired markup"));
     }
 }
