@@ -93,27 +93,14 @@ class MarkdownParserTest {
         Assertions.assertTrue(exception.getMessage().contains("ERROR: invalid preformatted text"));
     }
 
-    @Test
-    void markdownANSIBoldTest() {
-        markdownParser = new MarkdownParser("**text**");
-        String expected = """
-                \u001B[1mtext\u001B[22m""";
-        Assertions.assertEquals(expected, markdownParser.parse(Format.ANSI));
-    }
-
-    @Test
-    void markdownANSIMonospacedTest() {
-        markdownParser = new MarkdownParser("`text`");
-        String expected = """
-                \u001B[7mtext\u001B[27m""";
-        Assertions.assertEquals(expected, markdownParser.parse(Format.ANSI));
-    }
-
-    @Test
-    void markdownANSIItalicTest() {
-        markdownParser = new MarkdownParser("_text_");
-        String expected = """
-                \u001B[3mtext\u001B[23m""";
+    @ParameterizedTest
+    @CsvSource({
+            "**text**,[1mtext\u001B[22m",
+            "`text`,[7mtext\u001B[27m",
+            "_text_,[3mtext\u001B[23m"
+    })
+    void markdownANSIFormattedTest(String input, String expected) {
+        markdownParser = new MarkdownParser(input);
         Assertions.assertEquals(expected, markdownParser.parse(Format.ANSI));
     }
 
@@ -148,18 +135,11 @@ class MarkdownParserTest {
     @CsvSource({
             "** text,** text",
             "_ text _,_ text _",
-            "` text `,` text `"
+            "` text `,` text `",
+            "`**` text ` `_`,[7m**\u001B[27m text ` \u001B[7m_\u001B[27m"
     })
     void separateMarkupANSITest(String input, String expected) {
         markdownParser = new MarkdownParser(input);
-        Assertions.assertEquals(expected, markdownParser.parse(Format.ANSI));
-    }
-
-    @Test
-    void separateMarkupANSITest() {
-        markdownParser = new MarkdownParser("`**` text ` `_`");
-        String expected = """
-                \u001B[7m**\u001B[27m text ` \u001B[7m_\u001B[27m""";
         Assertions.assertEquals(expected, markdownParser.parse(Format.ANSI));
     }
 
