@@ -36,17 +36,15 @@ class MarkdownParserTest {
 
     @Test
     void paragraphMarkdownTest() {
-        String input = "text" +
-                System.lineSeparator() +
-                "more text" +
-                System.lineSeparator() +
-                "and more text";
-
-        String expected = "<p>text</p>" +
-                System.lineSeparator() +
-                "<p>more text</p>" +
-                System.lineSeparator() +
-                "<p>and more text</p>";
+        String input = """
+                text
+                more text
+             
+                and more text""";
+        String expected = """
+                <p>text</p>
+                <p>more text</p>
+                <p>and more text</p>""";
         markdownParser = new MarkdownParser(input);
         Assertions.assertEquals(expected, markdownParser.parse(Format.HTML));
     }
@@ -129,7 +127,6 @@ class MarkdownParserTest {
 
         String expected = """
                 text
-                
                 more text
                 and more text""";
         markdownParser = new MarkdownParser(input);
@@ -163,6 +160,25 @@ class MarkdownParserTest {
         markdownParser = new MarkdownParser("`**` text ` `_`");
         String expected = """
                 \u001B[7m**\u001B[27m text ` \u001B[7m_\u001B[27m""";
+        Assertions.assertEquals(expected, markdownParser.parse(Format.ANSI));
+    }
+
+    @Test
+    void preformattedMarkupANSITest() {
+        String input = """
+                ```
+                _text_
+                
+                **more text**
+                `and more_text
+                ```""";
+        String expected = """
+                _text_
+                
+                **more text**
+                `and more_text""";
+
+        markdownParser = new MarkdownParser(input);
         Assertions.assertEquals(expected, markdownParser.parse(Format.ANSI));
     }
 }
