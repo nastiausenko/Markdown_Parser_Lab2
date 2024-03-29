@@ -7,6 +7,7 @@ import java.util.regex.Pattern;
 
 public class MarkupChecker {
     private final String[] markups = new String[]{"**", "```", "`", "_"};
+
     public void checkNested(String firstRegex, String secondRegex, List<String> regexes) {
         Pattern firstPattern = Pattern.compile(firstRegex, Pattern.DOTALL);
         Pattern secondPattern = Pattern.compile(secondRegex, Pattern.DOTALL);
@@ -20,7 +21,7 @@ public class MarkupChecker {
     }
 
     public void checkUnpairedMarkup(String text) {
-        for (String markup: markups) {
+        for (String markup : markups) {
             checkInnerMarkup(text, markup);
             hasUnpairedMarkup(text, markup);
         }
@@ -34,8 +35,8 @@ public class MarkupChecker {
         String[] words = text.split("\\s+");
         for (String word : words) {
             if (word.startsWith(markup) && !word.endsWith(markup) ||
-                    word.endsWith(markup) && !word.startsWith(markup)) {
-                throw new MarkdownException("Error: unpaired markup");
+                word.endsWith(markup) && !word.startsWith(markup)) {
+                throw new MarkdownException("ERROR: unpaired markup");
             }
         }
     }
@@ -49,15 +50,16 @@ public class MarkupChecker {
 
     private void hasInnerMarkup(String word, String markup) {
         String result;
-        for (String mark: markups) {
-            if (word.startsWith(markup) ) {
+        String regex = ".*[A-Za-z0-9].*";
+        for (String mark : markups) {
+            if (word.startsWith(markup) && word.matches(regex)) {
                 result = word.substring(markup.length());
                 if (result.startsWith(mark)) {
                     throw new MarkdownException("ERROR: unpaired nested markup");
                 }
             }
-            if (word.endsWith(markup)) {
-                result = word.substring(0,word.length()-markup.length());
+            if (word.endsWith(markup) && word.matches(regex)) {
+                result = word.substring(0, word.length() - markup.length());
                 if (result.endsWith(mark)) {
                     throw new MarkdownException("ERROR: unpaired nested markup");
                 }
