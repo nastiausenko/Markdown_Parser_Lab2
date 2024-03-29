@@ -10,13 +10,21 @@ public class Main {
 
         String inputFile = args[0];
         String outputFile = null;
-        Format format = Format.HTML;
+        Format format = null;
 
         for (int i = 1; i < args.length; i++) {
             if ("--out".equals(args[i])) {
                 outputFile = parseOutputFile(args, i);
             } else if ("--format".equals(args[i])) {
                 format = parseFormat(args, i);
+            }
+        }
+
+        if (format == null) {
+            if (outputFile != null) {
+                format = Format.HTML;
+            } else {
+                format = Format.ANSI;
             }
         }
 
