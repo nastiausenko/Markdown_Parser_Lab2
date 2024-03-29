@@ -51,6 +51,27 @@ class MarkdownParserTest {
         Assertions.assertEquals(expected, markdownParser.parse(Format.HTML));
     }
 
+    @ParameterizedTest
+    @CsvSource({
+            "** text,<p>** text</p>",
+            "_ text _,<p>_ text _</p>",
+            "`**` text ` `_`,<p><tt>**</tt> text ` <tt>_</tt></p>"
+    })
+    void separateMarkupTest(String input, String expected) {
+        markdownParser = new MarkdownParser(input);
+        Assertions.assertEquals(expected, markdownParser.parse(Format.HTML));
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+            "t**ext,<p>t**ext</p>",
+            "te_xt,<p>te_xt</p>",
+            "te`_xt,<p>te`_xt</p>"
+    })
+    void insideTextMarkupTest(String input, String expected) {
+        markdownParser = new MarkdownParser(input);
+        Assertions.assertEquals(expected, markdownParser.parse(Format.HTML));
+    }
 
     @Test
     void markdownANSIBoldTest() {
