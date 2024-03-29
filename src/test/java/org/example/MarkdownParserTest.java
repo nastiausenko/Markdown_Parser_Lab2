@@ -135,4 +135,34 @@ class MarkdownParserTest {
         markdownParser = new MarkdownParser(input);
         Assertions.assertEquals(expected, markdownParser.parse(Format.ANSI));
     }
+
+    @ParameterizedTest
+    @CsvSource({
+            "t**ext,t**ext",
+            "te_xt,te_xt",
+            "te`_xt,te`_xt"
+    })
+    void insideTextMarkupANSITest(String input, String expected) {
+        markdownParser = new MarkdownParser(input);
+        Assertions.assertEquals(expected, markdownParser.parse(Format.ANSI));
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+            "** text,** text",
+            "_ text _,_ text _",
+            "` text `,` text `"
+    })
+    void separateMarkupANSITest(String input, String expected) {
+        markdownParser = new MarkdownParser(input);
+        Assertions.assertEquals(expected, markdownParser.parse(Format.ANSI));
+    }
+
+    @Test
+    void separateMarkupANSITest() {
+        markdownParser = new MarkdownParser("`**` text ` `_`");
+        String expected = """
+                \u001B[7m**\u001B[27m text ` \u001B[7m_\u001B[27m""";
+        Assertions.assertEquals(expected, markdownParser.parse(Format.ANSI));
+    }
 }
