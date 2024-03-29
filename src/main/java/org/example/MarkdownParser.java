@@ -49,8 +49,8 @@ public class MarkdownParser {
             content = content.replaceAll(BOLD_REGEX, "<b>$1</b>");
             content = content.replaceAll(ITALIC_REGEX, "<i>$1</i>");
             content = content.replaceAll(MONOSPACED_REGEX, "<tt>$1</tt>");
-            content = setParagraphs(content);
         }
+        content = setParagraphs(format);
         return content;
     }
 
@@ -81,7 +81,7 @@ public class MarkdownParser {
         for (String cur : preformattedText) {
             String formattedText;
             if (format.equals(Format.ANSI)) {
-                formattedText = cur.replaceAll("```", "");
+                formattedText = cur.replaceAll("```", "").trim();
             } else {
                 formattedText = "<pre>" + cur.replaceAll("```", "") + "</pre>";
             }
@@ -90,12 +90,14 @@ public class MarkdownParser {
         return content;
     }
 
-    private String setParagraphs(String text) {
-        String[] paragraphs = text.split(System.lineSeparator());
+    private String setParagraphs(Format format) {
+        String[] paragraphs = content.split("\\R");
         StringBuilder result = new StringBuilder();
         for (String paragraph : paragraphs) {
             if (!paragraph.isEmpty()) {
-                result.append("<p>").append(paragraph.trim()).append("</p>").append(System.lineSeparator());
+                if (format.equals(Format.ANSI)) {
+                    result.append(paragraph).append("\n");
+                } else result.append("<p>").append(paragraph.trim()).append("</p>").append("\n");
             }
         }
         return result.toString().trim();
