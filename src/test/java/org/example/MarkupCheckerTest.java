@@ -14,7 +14,7 @@ class MarkupCheckerTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"_text", "text_", "**text", "text**", "`text", "text`"})
+    @ValueSource(strings = {"_text", "text_", "**text", "text**", "`text", "text`", "```\ntext", "text\n```"})
     void checkUnpairedMarkupTest(String input) {
        MarkdownException exception = Assertions.assertThrows(MarkdownException.class,
                ()-> markupChecker.checkUnpairedMarkup(input));
