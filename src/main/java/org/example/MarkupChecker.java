@@ -1,5 +1,6 @@
 package org.example;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -21,6 +22,7 @@ public class MarkupChecker {
     }
 
     public void checkUnpairedMarkup(String text) {
+        checkUnpairedPreformatted(text);
         for (String markup : markups) {
             checkInnerMarkup(text, markup);
             hasUnpairedMarkup(text, markup);
@@ -45,6 +47,19 @@ public class MarkupChecker {
         String[] words = text.split("\\s+");
         for (String word : words) {
             hasInnerMarkup(word, markup);
+        }
+    }
+
+    private void checkUnpairedPreformatted(String text) {
+        List<String> preformattedMarkupList = new ArrayList<>();
+        String[] words = text.split("\\s+");
+        for (String word: words) {
+            if (word.equals("```")) {
+                preformattedMarkupList.add(word);
+            }
+        }
+        if (preformattedMarkupList.size() % 2  != 0) {
+            throw new MarkdownException("ERROR: unpaired markup");
         }
     }
 
