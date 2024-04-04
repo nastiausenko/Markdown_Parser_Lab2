@@ -13,7 +13,7 @@ You must have Java installed on your machine to run this application.
 
 1. Clone this repository with the command
 ```
-git clone https://github.com/nastiausenko/Markdown_Parser.git
+git clone https://github.com/nastiausenko/Markdown_Parser_Lab2.git
 ```
 
 ## Usage
